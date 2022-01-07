@@ -11,10 +11,10 @@ import os
 import json
 from src.data.dataset_utils import generate_new_annotation_file
 
-@click.command()
-@click.argument('input_filepath', type=click.Path())
-@click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
+#@click.command()
+#@click.argument('input_filepath', type=click.Path())
+#@click.argument('output_filepath', type=click.Path())
+def main():
     """
     Root should be mlops-project
     Runs data processing scripts to turn raw data from (../raw) into
