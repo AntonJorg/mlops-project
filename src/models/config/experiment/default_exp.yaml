@@ -1,0 +1,13 @@
+dataset_path: "~/data"
+seed: 42
+
+epochs: 1
+batch_size: 2
+
+lr: 1e-4
+lr_backbone: 1e-5
+weight_decay: 1e-4
+
+gpus: 0
+amp_backend: 'apex'
+amp_level: '02'
