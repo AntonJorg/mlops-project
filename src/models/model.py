@@ -74,22 +74,3 @@ class DetrPascal(LightningModule):
         optimizer = AdamW(param_dicts, lr=self.lr, weight_decay=self.weight_decay)
 
         return optimizer
-
-
-if __name__ == "__main__":
-
-    url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-    image = Image.open(requests.get(url, stream=True).raw)
-
-    model = DetrPascal()
-
-    outputs = model(image)
-
-    # model predicts bounding boxes and corresponding COCO classes
-    print("Output attributes:")
-    for attr in dir(outputs):
-        if "__" not in attr:
-            print(attr)
-
-    print("\nLogits shape:")
-    print(outputs.logits.shape)
