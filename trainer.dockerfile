@@ -1,14 +1,13 @@
 # Base image
 FROM anibali/pytorch:1.10.0-cuda11.3-ubuntu20.04
 
+# privileges, maybe find way to avoid using root user
+USER root
+
 # create base directory
 RUN mkdir "mlops"
 # set working directory to mlops folder
 WORKDIR "/mlops"
-
-# privileges
-#RUN sudo adduser --disabled-password mlops && sudo chown -R mlops "/mlops"
-USER root
 
 # install python
 RUN apt update && \
