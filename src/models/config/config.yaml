@@ -1,2 +1,5 @@
 defaults:
   - experiment: default_exp
+
+gpus: -1
+wandb: True
