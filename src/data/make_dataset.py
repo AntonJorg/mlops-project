@@ -37,6 +37,7 @@ def main():
     logger.info("generating annotation files")
     generate_new_annotation_file("train")
     generate_new_annotation_file("valid")
+    logger.info("done!")
 
 
 if __name__ == "__main__":
