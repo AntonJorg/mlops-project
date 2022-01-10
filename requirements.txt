@@ -19,3 +19,5 @@ setuptools~=60.3.1
 torch==1.10.1
 torchvision==0.11.2
 transformers==4.15.0
+pycocotools
+
