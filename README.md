@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ```
 to install any and all dependencies needed for the project.
 
-To download and process the Pascal VOC 2021 Dataset, use
+To download and process the Pascal VOC 2012 Dataset, use
 ```
 make data
 ```
