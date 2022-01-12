@@ -18,7 +18,7 @@ n_classes = len(classes)
 
 @click.command()
 @click.argument('load_model_from', type=click.Path(exists=True))
-@click.argument('images_from', type=click.Path(exists=True))
+@click.argument('images_from')
 @click.option('--predictions_to', default='predictions', required=False)
 @click.option('--threshold', default=.5, required=False)
 def predict(load_model_from, images_from, predictions_to='predictions', threshold=.5):
@@ -33,7 +33,7 @@ def predict(load_model_from, images_from, predictions_to='predictions', threshol
     feature_extractor = DetrFeatureExtractor.from_pretrained("facebook/detr-resnet-50")
     # TODO: Load in our trained model. Below is a placeholder
     model = DetrForObjectDetection.from_pretrained(
-                "facebook/detr-resnet-50", num_labels=20, ignore_mismatched_sizes=True
+                "facebook/detr-resnet-50", num_labels=n_classes, ignore_mismatched_sizes=True
                 )
 
     images = []
@@ -44,18 +44,20 @@ def predict(load_model_from, images_from, predictions_to='predictions', threshol
             for f in filenames:
                 try:
                     image = Image.open(f).convert('RGB')
+                    images.append(image)
                 except:
                     continue
-                images.append(image)
+                
         elif os.path.isfile(images_from):
             try:
                 image = Image.open(images_from).convert('RGB')
+                images.append(image)
             except:
                 pass
-            images.append(image)
     else:
         try:
             image = Image.open(requests.get(images_from, stream=True).raw).convert('RGB')
+            images.append(image)
         except:
             pass
     
