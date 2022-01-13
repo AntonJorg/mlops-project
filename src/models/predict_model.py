@@ -112,7 +112,7 @@ def predict(load_model_from,
                 x, y, w, h = tuple(box)
                 x, y, w, h = x.item(), y.item(), w.item(), h.item()
                 result['detections'].append((pred_class, (x, y, w, h)))
-                
+
                 x *= image_w
                 y *= image_h
                 w *= image_w
