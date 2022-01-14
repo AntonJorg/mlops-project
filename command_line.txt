@@ -30,11 +30,11 @@ gcloud ai-platform jobs submit training $JOB_NAME \
   --scale-tier BASIC \
   --region $REGION \
   --master-image-uri $IMAGE_URI \
-  -- \ "wandb=False default_root_dir=gs://dtumlops-detr-aiplatform"
+  -- \
+  --wandb=False \
+  --default_root_dir=gs://dtumlops-detr-aiplatform
 
 
 
 
 
-
-wandb=False default_root_dir=gs://dtumlops-detr-aiplatform

@@ -8,7 +8,7 @@ from hydra.utils import to_absolute_path
 from omegaconf import OmegaConf
 from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 from pytorch_lightning import Trainer, seed_everything
-
+from os.path import join, dirname
 from src.data.dataset_utils import get_dataloaders
 from src.models.model import DetrPascal
 
@@ -20,7 +20,7 @@ def main(config):
     log.info(f"configuration: \n {OmegaConf.to_yaml(config)}")
     loggers = [TensorBoardLogger("lightning_logs/", name="")]
     if config.wandb:
-        load_dotenv()
+        load_dotenv('.env')
         api_key = os.getenv("WANDB_API_KEY")
         project = os.getenv("WANDB_PROJECT")
         entity = os.getenv("WANDB_ENTITY")

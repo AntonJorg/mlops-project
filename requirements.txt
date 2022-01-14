@@ -11,6 +11,7 @@ python-dotenv>=0.5.1
 
 # pipreqs outputs minus those mentioned above already
 hydra-core==1.1.1
+timm
 omegaconf==2.1.1
 Pillow~=8.4.0
 pytorch_lightning==1.5.8
