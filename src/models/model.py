@@ -10,7 +10,7 @@ class DetrPascal(LightningModule):
         super().__init__()
         # replace COCO classification head with custom head
         self.model = DetrForObjectDetection.from_pretrained(
-            "facebook/detr-resnet-50", num_labels=21, ignore_mismatched_sizes=True
+            "facebook/detr-resnet-50", num_labels=20, ignore_mismatched_sizes=True
         )
         # see https://github.com/PyTorchLightning/pytorch-lightning/pull/1896
         self.lr = lr
