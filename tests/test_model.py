@@ -5,7 +5,7 @@ from transformers import DetrFeatureExtractor
 
 seed = 1510
 torch.manual_seed(seed)
-batch_size = 2
+batch_size = 4
 sizes = [(w, h, 3) for w in (400, 2000)
          for h in (400, 2000)]
 images = [torch.rand(size) * 255 for size in sizes]
