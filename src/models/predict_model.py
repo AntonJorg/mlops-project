@@ -1,15 +1,18 @@
-import os
-import click
-import requests
-import json
 import datetime
+import json
+import logging
+import os
 
-import torch
+import click
 import numpy as np
-
-from torch.nn.functional import softmax
+import requests
+import torch
 from PIL import Image, ImageDraw
-from transformers import DetrForObjectDetection, DetrFeatureExtractor
+from torch.nn.functional import softmax
+from transformers import DetrFeatureExtractor, DetrForObjectDetection
+
+# Logger
+log = logging.getLogger(__name__)
 
 # Object classes
 classes = [
@@ -20,15 +23,65 @@ classes = [
 n_classes = len(classes)
 
 
+class PredictSet:
+    """Helper class to load in images for prediction."""
+
+    def __init__(self, images_from):
+        self.images_from = images_from
+        self.load_from = []
+        self.is_url = False
+        if os.path.exists(self.images_from):
+            if os.path.isdir(self.images_from):
+                self.load_from = [f'{self.images_from}/{filename}' for filename in next(os.walk(self.images_from),
+                                      (None, None, []))[2]]
+            elif os.path.isfile(self.images_from):
+                self.load_from.append(self.images_from)
+        else:
+            try:
+                requests.get(self.images_from, stream=True)
+                self.is_url = True
+                self.load_from.append(self.images_from)
+            except:
+                pass
+        self.loader = self.load_image()
+
+    def __len__(self):
+        return len(self.load_from)
+
+    def load_image(self):
+        while len(self.load_from):
+            if self.is_url:
+                try:
+                    id = self.load_from.pop(0)
+                    image = Image.open(
+                        requests.get(id,
+                                     stream=True).raw).convert('RGB')
+                except:
+                    log.debug(f'Failed to load image from url: {id}')
+                    continue
+            else:
+                try:
+                    id = self.load_from.pop(0)
+                    image = Image.open(id).convert('RGB')
+                except:
+                    log.debug(f'Failed to load image from file: {id}')
+                    continue
+            yield image, id
+            
+
 @click.command()
 @click.argument('load_model_from', type=click.Path(exists=True))
 @click.argument('images_from')
 @click.option('--predictions_to', default='predictions', required=False)
 @click.option('--threshold', default=.5, required=False)
+@click.option('--batch_size', default=4, required=False)
+@click.option('--draw_boxes', default=True, required=False)
 def predict(load_model_from,
             images_from,
             predictions_to='predictions',
-            threshold=.5):
+            threshold=.5,
+            batch_size=4,
+            draw_boxes=True):
     """Predicts objects in the provided images.
     
     Arguments:
@@ -42,44 +95,19 @@ def predict(load_model_from,
     assert os.path.exists(load_model_from), "The model path does not exist."
 
     feature_extractor = DetrFeatureExtractor.from_pretrained(
-        "facebook/detr-resnet-50")
+        "mishig/tiny-detr-mobilenetsv3")
     # TODO: Load in our trained model. Below is a placeholder
     model = DetrForObjectDetection.from_pretrained(
-        "facebook/detr-resnet-50",
+        "mishig/tiny-detr-mobilenetsv3",
         num_labels=n_classes,
         ignore_mismatched_sizes=True)
-
-    images = []
-    # Load in images
-    if os.path.exists(images_from):
-        if os.path.isdir(images_from):
-            filenames = next(os.walk(images_from), (None, None, []))[2]
-            for f in filenames:
-                try:
-                    image = Image.open(f'{images_from}/{f}').convert('RGB')
-                    images.append((image, f))
-                except:
-                    continue
-
-        elif os.path.isfile(images_from):
-            try:
-                image = Image.open(images_from).convert('RGB')
-                images.append((image, images_from))
-            except:
-                pass
-    else:
-        try:
-            image = Image.open(requests.get(images_from,
-                                            stream=True).raw).convert('RGB')
-            images.append((image, images_from))
-        except:
-            pass
-
-    assert len(images), "No images were found."
+    
+    Images = PredictSet(images_from)
+    assert Images, "No images were found."
 
     # Save configuration info and results.
     ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    info = {
+    annotated = {
         'timestamp': ts,
         'model_path': load_model_from,
         'threshold': threshold,
@@ -89,29 +117,42 @@ def predict(load_model_from,
 
     images_out = []
     i = 0
-    # We predict the images 1 by 1, ie. no batching.
-    while len(images):
-        image, id = images.pop(0)
-        result = {'id': i, 'file_name': id, 'detections': []}
-        image_w, image_h = image.size
-        encoding = feature_extractor(images=image, return_tensors='pt')
+    # Prediction
+    while len(Images):
+        # Construct batch
+        batch = []
+        batch_results = []
+        batch_images_out = []
+        while len(batch) < batch_size and len(Images):
+            image, id = next(Images.loader)
+            batch_images_out.append(image.copy())
+            batch.append(image)
+            batch_results.append({'id': i, 'file_name': id, 'detections': []})
+            i += 1
+
+        encoding = feature_extractor(images=batch, return_tensors='pt')
 
         with torch.no_grad():
-            output = model(**encoding)
+            outputs = model(**encoding)
 
-        image_out = image.copy()
-        draw = ImageDraw.Draw(image_out, "RGBA")
-        # Here we don't actually need the for loop,
-        # but for batches, we would loop over each image in the batch
-        for logits, bboxes in zip(output.logits, output.pred_boxes):
+        # We loop over each image in the batch
+        for logits, bboxes, image_out, result in zip(outputs.logits,
+                                                     outputs.pred_boxes,
+                                                     batch_images_out,
+                                                     batch_results):
+            image_w, image_h = image_out.size
+            draw = ImageDraw.Draw(image_out, "RGBA")
             probs = softmax(logits, dim=1)
             best = np.argmax(probs, 1)
             criteria = probs[np.arange(len(best)), best] > threshold
-            for pred, box in zip(best[criteria], bboxes[criteria]):
+            for pred, box, prob in zip(best[criteria], bboxes[criteria],
+                                       probs[criteria]):
                 pred_class = classes[pred] if pred < n_classes else "No Object"
+                confidence = prob[pred].item()
                 x, y, w, h = tuple(box)
                 x, y, w, h = x.item(), y.item(), w.item(), h.item()
-                result['detections'].append((pred_class, (x, y, w, h)))
+                result['detections'].append(
+                    (pred_class, (x, y, w, h), confidence))
 
                 x *= image_w
                 y *= image_h
@@ -123,10 +164,9 @@ def predict(load_model_from,
                 draw.text((x - w / 2 + 5, y - h / 2 + 5),
                           pred_class,
                           fill='red')
-        images_out.append((image_out, id))
-        results.append(result)
-        i += 1
-    info['results'] = results
+            images_out.append(image_out)
+            results.append(result)
+    annotated['results'] = results
 
     # Save results to {predictions_to} folder
     if os.path.exists(predictions_to):
@@ -138,15 +178,18 @@ def predict(load_model_from,
         next_dir = str(1)
     os.mkdir(f'{predictions_to}/{next_dir}')
 
-    for i, (image_out, id) in enumerate(images_out):
+    for i, image_out in enumerate(images_out):
         image_out.save(f'{predictions_to}/{next_dir}/im_pred{i}.jpg')
 
     # Save info to a readable json file.
-    with open(f'{predictions_to}/{next_dir}/info.json', 'w') as file:
-        json.dump(info, file, indent=4)
+    with open(f'{predictions_to}/{next_dir}/annotated.json', 'w') as file:
+        json.dump(annotated, file, indent=4)
 
     return None
 
 
 if __name__ == '__main__':
+    log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    logging.basicConfig(level=logging.DEBUG, format=log_fmt)
+
     predict()
