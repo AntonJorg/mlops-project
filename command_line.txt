@@ -1,0 +1,38 @@
+gcloud auth activate-service-account --key-file=gcloud_key.json && \
+    gcloud --quiet config set project dtumlops-detr
+
+gcloud iam service-accounts list
+
+gcloud iam service-accounts list
+
+gcloud iam service-accounts keys create gcloud_key.json --iam-account=1013009768470-compute@developer.gserviceaccount.com
+
+FROM anibali/pytorch:1.10.0-cuda11.3-ubuntu20.04
+
+PROJECT_ID=$(gcloud config list project --format "value(core.project)")
+BUCKET_NAME=${PROJECT_ID}-aiplatform
+REGION=us-central1
+gsutil mb -l $REGION gs://$BUCKET_NAME
+
+export PROJECT_ID=$(gcloud config list project --format "value(core.project)")
+export IMAGE_REPO_NAME=detr_pascal
+export IMAGE_TAG=latest
+export IMAGE_URI=gcr.io/$PROJECT_ID/$IMAGE_REPO_NAME:$IMAGE_TAG
+
+docker build -f trainer.dockerfile -t $IMAGE_URI ./
+
+export REGION=us-central1
+export JOB_NAME=custom_container_job_gpu_$(date +%Y%m%d_%H%M%S)
+
+gcloud ai-platform jobs submit training $JOB_NAME \
+  --scale-tier BASIC \
+  --region $REGION \
+  --master-image-uri $IMAGE_URI \
+  -- \ wandb=False default_root_dir=gs://dtumlops-detr-aiplatform
+
+
+
+
+
+
+wandb=False default_root_dir=gs://dtumlops-detr-aiplatform

@@ -46,7 +46,7 @@ def main(config):
     )
 
     # Train
-    trainer = Trainer(
+    trainer = Trainer(default_root_dir=config.default_root_dir,
         logger=loggers,
         gpus=config.gpus,
         amp_backend=hparams.amp_backend,

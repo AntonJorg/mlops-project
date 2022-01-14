@@ -3,3 +3,5 @@ defaults:
 
 gpus: -1
 wandb: True
+default_root_dir: os.getcwd()
+
