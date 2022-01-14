@@ -47,7 +47,7 @@ class Collator:
 
     def __init__(self):
         self.feature_extractor = DetrFeatureExtractor.from_pretrained(
-            "facebook/detr-resnet-50"
+            "mishig/tiny-detr-mobilenetsv3"
         )
 
     def __call__(self, batch):
@@ -142,12 +142,16 @@ def generate_new_annotation_file(dataset=None):
 
 
 if __name__ == "__main__":
-    feature_extractor = DetrFeatureExtractor.from_pretrained("facebook/detr-resnet-50")
+    feature_extractor = DetrFeatureExtractor.from_pretrained(
+        "mishig/tiny-detr-mobilenetsv3"
+    )
 
-    train_dataset = PascalDataset(feature_extractor=feature_extractor)
-    val_dataset = PascalDataset(feature_extractor=feature_extractor, train=False)
+    train_dataset = PascalDataset("data", feature_extractor=feature_extractor)
+    val_dataset = PascalDataset(
+        "data", feature_extractor=feature_extractor, train=False
+    )
 
     print("Training images:", len(train_dataset))
     print("Test images    :", len(val_dataset))
     cats = train_dataset.coco.cats
-    print("Classes:", len(cats))
+    print("Classes (incuding No Object):", len(cats))
