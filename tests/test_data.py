@@ -6,10 +6,13 @@ from src.data.dataset_utils import get_dataloaders
 
 from tests import _PATH_DATA
 
+if not os.path.exists("data"):
+    pytestmark = pytest.mark.skip
+
 train_dataloader, val_dataloader = get_dataloaders(_PATH_DATA, 4)
 
 
-@pytest.mark.skipif(not os.path.exists("data"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data"), reason="Data files not found")
 def test_datasets_length():
     """
     Test that the correct amount of train/val images are loaded
@@ -19,7 +22,7 @@ def test_datasets_length():
     assert len(val_dataloader.dataset) == 3422
 
 
-@pytest.mark.skipif(not os.path.exists("data"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data"), reason="Data files not found")
 def test_dataloaders_length():
     """
     Test that the dataloaders size agrees with ceil(dataset_size / batch_size)
@@ -33,7 +36,7 @@ def test_dataloaders_length():
     )
 
 
-@pytest.mark.skipif(not os.path.exists("data"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data"), reason="Data files not found")
 def test_datasets_getitem():
     """
     Test that getitem types are correct
@@ -50,7 +53,7 @@ def test_datasets_getitem():
     assert len(target) == 7
 
 
-@pytest.mark.skipif(not os.path.exists("data"), reason="Data files not found")
+# @pytest.mark.skipif(not os.path.exists("data"), reason="Data files not found")
 def test_dataloaders_batch():
     """
     Test that the lenght of batches agrees with batch_size, and that types are correct
