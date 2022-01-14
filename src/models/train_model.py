@@ -18,16 +18,17 @@ log = logging.getLogger(__name__)
 @hydra.main(config_path="config", config_name="config.yaml")
 def main(config):
     log.info(f"configuration: \n {OmegaConf.to_yaml(config)}")
-
     loggers = [TensorBoardLogger("lightning_logs/", name="")]
     if config.wandb:
+        load_dotenv()
         api_key = os.getenv("WANDB_API_KEY")
         project = os.getenv("WANDB_PROJECT")
+        entity = os.getenv("WANDB_ENTITY")
         if not (api_key or project):
             raise EnvironmentError(
                 "Trying to use wandb logging without WANDB_API_KEY or WANDB_PROJECT defined in .env")
         wandb.login(key=api_key)
-        wandb.init(project=project)
+        wandb.init(project=project,entity=entity)
         loggers.append(WandbLogger())
 
     hparams = config.experiment

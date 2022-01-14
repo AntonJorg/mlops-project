@@ -24,3 +24,4 @@ wandb
 dvc
 dvc[gs]
 fsspec[gcs]
+setuptools==59.5.0

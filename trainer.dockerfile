@@ -41,12 +41,9 @@ ENV GOOGLE_APPLICATION_CREDENTIALS=gcloud_key.json
 RUN gcloud auth activate-service-account --key-file=gcloud_key.json && \
     gcloud --quiet config set project dtumlops-detr
 
-COPY requirements1.txt requirements1.txt
-RUN pip install -r requirements1.txt
-
 ENV PATH $PATH:/usr/local/lib/python3.7/bin
 ENV PATH $PATH:/usr/local/lib/python/bin
-RUN git clone https://github.com/AntonJorg/mlops-project.git && \
+RUN git clone --branch cloud_building https://github.com/AntonJorg/mlops-project.git  && \
     cd mlops-project
     #&& \     dvc pull
 
