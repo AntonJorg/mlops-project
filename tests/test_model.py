@@ -90,5 +90,5 @@ while len(images):
         with torch.no_grad():
             output = model.validation_step(encoding, batch_idx)
     except Exception as err:
-        print('Training step failed.')
+        print('Validation step failed.')
         raise
