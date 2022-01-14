@@ -1,5 +1,6 @@
 defaults:
   - experiment: defaultexp
+  - _self_
 
 gpus: -1
 wandb: True
