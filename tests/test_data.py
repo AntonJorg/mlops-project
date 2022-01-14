@@ -13,7 +13,8 @@ class TestData:
     @pytest.fixture(scope="class")
     def dataloaders(self):
         batch_size = 4
-        return *get_dataloaders(_PATH_DATA, batch_size), batch_size
+        train, val = get_dataloaders(_PATH_DATA, batch_size)
+        return train, val, batch_size
 
     def test_datasets_length(self, dataloaders):
         """
