@@ -88,5 +88,6 @@ target/
 # Mypy cache
 .mypy_cache/
 
+# exclude outputs and predictions
 outputs/
-/data
+predictions/
