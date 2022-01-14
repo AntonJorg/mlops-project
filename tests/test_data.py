@@ -1,4 +1,4 @@
-import numpy as np
+import math
 import torch
 import os
 import pytest
@@ -25,10 +25,10 @@ def test_dataloaders_length():
     Test that the dataloaders size agrees with ceil(dataset_size / batch_size)
     """
 
-    assert len(train_dataloader) == np.ceil(
+    assert len(train_dataloader) == math.ceil(
         len(train_dataloader.dataset) / train_dataloader.batch_size
     )
-    assert len(val_dataloader) == np.ceil(
+    assert len(val_dataloader) == math.ceil(
         len(val_dataloader.dataset) / val_dataloader.batch_size
     )
 
