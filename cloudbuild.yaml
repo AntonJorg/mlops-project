@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build','-f','trainer.dockerfile','-t', 'gcr.io/dtumlops-detr/testing', '.']
+  args: ['build','-t', 'gcr.io/dtumlops-detr/testing', '.','-f', 'trainer.dockerfile']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/dtumlops-detr/testing']
 

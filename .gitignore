@@ -57,7 +57,7 @@ docs/_build/
 target/
 
 # DotEnv configuration
-.env
+
 
 # Database
 *.db
@@ -91,3 +91,9 @@ target/
 # exclude outputs and predictions
 outputs/
 predictions/
+next_steps.txt
+command_line.txt
+
+
+
+
