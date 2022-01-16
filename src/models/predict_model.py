@@ -94,6 +94,8 @@ def predict(load_model_from,
         predictions_to {str}: path to folder where results are saved. The path does not have
                               to exist. (default 'predictions')
         threshold {float}: Probability threshold for predictions. (default .5) 
+        batch_size {int}: Batch size for prediction. (default 4)
+        draw_boxes {bool}: Whether to draw the bounding boxes on the images and save them. (default True)
     """
     assert os.path.exists(load_model_from), "The model path does not exist."
 
