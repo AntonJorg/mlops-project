@@ -1,7 +1,7 @@
 defaults:
   - experiment: defaultexp
 
-gpus: -1
+gpus: 0
 wandb: True
 default_root_dir: os.getcwd()
 

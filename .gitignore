@@ -57,7 +57,7 @@ docs/_build/
 target/
 
 # DotEnv configuration
-.env
+
 
 # Database
 *.db
@@ -89,4 +89,6 @@ target/
 .mypy_cache/
 
 outputs/
-/data
+next_steps.txt
+command_line.txt
+
