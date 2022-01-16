@@ -22,6 +22,10 @@ def main():
 
     logger = logging.getLogger(__name__)
 
+    if not os.path.exists("data"):
+        logger.info("no /data directory found, creating...")
+        os.mkdir("data")
+
     if not os.path.exists(os.path.join(os.getcwd(), "data/train")):
         logger.info("downloading PASCAL VOC 2012 (might take a few minutes)...")
         url = "https://public.roboflow.com/ds/TuRdHOyzfR?key=mVfrbTRBIf"

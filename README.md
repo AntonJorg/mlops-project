@@ -1,3 +1,4 @@
+
 # mlops-project
 Project work for 02476 Machine Learning Operations
 
@@ -30,6 +31,11 @@ make data
 To train a new model use
 ```
 make train
+```
+
+To make a prediction using a trained model use
+```
+python src/models/predict_model.py {path to model weights} {path OR url to images}
 ```
 
 # Project Organization
