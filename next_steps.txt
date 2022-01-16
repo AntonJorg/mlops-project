@@ -1,3 +1,3 @@
 change path to main
-only generate image when source code is updated
 fix data leaks
+get cahche working on cloud
