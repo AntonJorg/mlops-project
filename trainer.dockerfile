@@ -36,11 +36,6 @@ RUN wget -nv \
 
 ENV PATH $PATH:/root/tools/google-cloud-sdk/bin
 
-COPY gcloud_key.json gcloud_key.json
-ENV GOOGLE_APPLICATION_CREDENTIALS=gcloud_key.json
-RUN gcloud auth activate-service-account --key-file=gcloud_key.json && \
-    gcloud --quiet config set project dtumlops-detr
-
 ENV PATH $PATH:/usr/local/lib/python3.7/bin
 ENV PATH $PATH:/usr/local/lib/python/bin
 
