@@ -51,7 +51,9 @@ def main(config):
         logger=loggers,
         gpus=config.gpus,
         amp_backend=hparams.amp_backend,
-        amp_level=hparams.amp_level,limit_train_batches=10, limit_val_batches=10,
+        amp_level=hparams.amp_level,
+        limit_train_batches=config.limit_train_batches,
+        limit_val_batches=config.limit_val_batches,
 
     )
     trainer.fit(model, train_dataloader, val_dataloader)
