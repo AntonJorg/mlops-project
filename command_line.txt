@@ -30,7 +30,7 @@ gcloud ai-platform jobs submit training $JOB_NAME \
   --scale-tier custom \
   --region $REGION \
   --master-image-uri $IMAGE_URI \
-  --master-machine-type e2-highmem-16 -- default_root_dir=gs://dtumlops-detr-aiplatform gpus=0 experiment.batch_size=16
+  --master-machine-type e2-highmem-16 -- default_root_dir=gs://dtumlops-detr-aiplatform experiment.batch_size=16
 
   gsutil cp -r gs://dtumlops-detr-aiplatform .
 

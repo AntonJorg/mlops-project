@@ -29,7 +29,11 @@ ADD https://api.github.com/repos/AntonJorg/mlops-project/git/refs/heads/cloud_bu
 RUN git clone -b cloud_building https://github.com/AntonJorg/mlops-project.git && \
     cd mlops-project && \
     pip install -r requirements.txt --no-cache-dir && \
-    dvc pull
+
+WORKDIR mlops-project
+
+RUN dvc pull
+
 
 WORKDIR mlops-project
 
