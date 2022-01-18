@@ -1,6 +1,13 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build','-t', 'gcr.io/dtumlops-detr/testing', '.','-f', 'trainer.dockerfile']
+  entrypoint: 'bash'
+  args: ['-c','docker build -f trainer.dockerfile . -t gcr.io/dtumlops-detr/testing --build-arg $$WANDB_API_KEY']
+  secretEnv: ['WANDB_API_KEY']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/dtumlops-detr/testing']
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/1013009768470/secrets/wandb-api-key-Villads/versions/1
+    env: 'WANDB_API_KEY'
 

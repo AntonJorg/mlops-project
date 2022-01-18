@@ -2,8 +2,6 @@ defaults:
   - experiment: defaultexp
   - _self_
 
-gpus: 0
 wandb: True
 default_root_dir: os.getcwd()
-limit_train_batches: 10
-limit_val_batches: 10
+job_name: None
