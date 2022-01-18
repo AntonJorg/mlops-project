@@ -23,6 +23,7 @@ COPY data/ data/
 # create model save dir
 RUN mkdir "models"
 
+ENV WANDB_API_KEY=b89ba4acaad2632dadb061352da212b1c09dd797
 # install dependencies
 RUN pip install -r requirements.txt --no-cache-dir
 

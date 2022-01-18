@@ -2,4 +2,4 @@ defaults:
   - experiment: defaultexp
 
 gpus: 0
-wandb: False
+wandb: True
