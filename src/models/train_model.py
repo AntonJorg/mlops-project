@@ -22,7 +22,9 @@ def main(config):
     loggers = [TensorBoardLogger("lightning_logs/", name="")]
     if config.wandb:
         load_dotenv('.env')
-        api_key = os.getenv("WANDB_API_KEY")
+        api_key=config.wandb_key
+        if not config.wandb_key:
+            api_key = os.getenv("WANDB_API_KEY")
         project = os.getenv("WANDB_PROJECT")
         entity = os.getenv("WANDB_ENTITY")
         if not (api_key or project):

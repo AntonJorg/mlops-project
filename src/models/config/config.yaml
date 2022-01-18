@@ -3,5 +3,9 @@ defaults:
   - _self_
 
 wandb: True
+wandbe_key: False
 default_root_dir: os.getcwd()
 job_name: None
+
+
+

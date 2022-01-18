@@ -37,8 +37,5 @@ RUN dvc pull
 
 # install dependencies
 
-
-RUN echo WANDB_API_KEY=$WANDB_API_KEY >> .env
-
 # run training script, -u redirects output to local console
 ENTRYPOINT ["python", "-u", "src/models/train_model.py"]
