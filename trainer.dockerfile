@@ -35,8 +35,6 @@ WORKDIR mlops-project
 RUN dvc pull
 
 
-WORKDIR mlops-project
-
 # install dependencies
 
 
