@@ -4,7 +4,6 @@ steps:
   args: ['-c','docker build -f trainer.dockerfile . -t gcr.io/dtumlops-detr/testing']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/dtumlops-detr/testing']
-
 timeout: 3600s
 
 
