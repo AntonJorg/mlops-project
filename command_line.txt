@@ -35,3 +35,4 @@ gcloud ai-platform jobs submit training $JOB_NAME \
   gsutil cp -r gs://dtumlops-detr-aiplatform .
 
  gcloud builds submit --config cloudbuild.yaml
+.
