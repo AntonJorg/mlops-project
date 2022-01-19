@@ -1,0 +1,2 @@
+get cahche working on cloud
+automize training using python fx with trigger

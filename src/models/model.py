@@ -50,7 +50,7 @@ class DetrPascal(LightningModule):
         loss, loss_dict = self.common_step(batch, batch_idx)
         self.log("validation_loss", loss.item(), batch_size=len(batch["pixel_values"]))
         for k, v in loss_dict.items():
-            self.log("validation_" + k, v.item(), batch_size=len(batch["pixel_values"]))
+            self.log("validation_" + k, v.item(), batch_size=len    (batch["pixel_values"]))
 
         return loss
 

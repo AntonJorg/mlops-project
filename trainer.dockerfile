@@ -1,30 +1,41 @@
 # Base image
-FROM anibali/pytorch:1.10.0-cuda11.3-ubuntu20.04
+FROM pure/python:3.7-cuda10.1-cudnn7-runtime
 
 # privileges, maybe find way to avoid using root user
 USER root
 
 # create base directory
-RUN mkdir "mlops"
+
 # set working directory to mlops folder
-WORKDIR "/mlops"
+
+
+RUN  apt-get update \
+  && apt-get install -y git \
+  && rm -rf /var/lib/apt/lists/*
 
 # install python
 RUN apt update && \
     apt install --no-install-recommends -y build-essential gcc && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
-# copy application over
-COPY requirements.txt requirements.txt
-COPY setup.py setup.py
-COPY src/ src/
-COPY data/ data/
 
-# create model save dir
-RUN mkdir "models"
+# install wget
+
+ENV PATH $PATH:/usr/local/lib/python3.7/bin
+ENV PATH $PATH:/usr/local/lib/python/bin
+
+
+ADD https://api.github.com/repos/AntonJorg/mlops-project/git/refs/heads/cloud_building version.json
+RUN git clone -b cloud_building https://github.com/AntonJorg/mlops-project.git && \
+    cd mlops-project && \
+    pip install -r requirements.txt --no-cache-dir
+
+WORKDIR mlops-project
+
+RUN dvc pull
+
 
 # install dependencies
-RUN pip install -r requirements.txt --no-cache-dir
 
 # run training script, -u redirects output to local console
 ENTRYPOINT ["python", "-u", "src/models/train_model.py"]
