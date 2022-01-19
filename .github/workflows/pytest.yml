@@ -40,7 +40,6 @@ jobs:
           pytest tests/ 
       
   docs:
-    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -72,12 +71,13 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          rm -R *
-          cp -R ../html .
+          rm -rf ..?* .[!.]* *
+          cp -R ../html/* .
           cp ../README.md README.md
           git add .
           git add README.md
           git commit -m "Generate documentation"
+          
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
