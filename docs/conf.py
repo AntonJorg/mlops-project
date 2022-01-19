@@ -17,7 +17,12 @@ import sys
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-# sys.path.insert(0, os.path.abspath('.'))
+
+sys.path.insert(0, os.path.abspath(".."))
+# sys.path.insert(0, os.path.abspath("../src/data"))
+# sys.path.insert(0, os.path.abspath("../src/features"))
+# sys.path.insert(0, os.path.abspath("../src/models"))
+# sys.path.insert(0, os.path.abspath("../src/visualization"))
 
 # -- General configuration -----------------------------------------------------
 
@@ -26,7 +31,8 @@ import sys
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = []
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.coverage", "sphinx.ext.napoleon"]
+autodoc_typehints = "description"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -74,7 +80,7 @@ exclude_patterns = ["_build"]
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-# add_module_names = True
+add_module_names = False
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
@@ -91,7 +97,7 @@ pygments_style = "sphinx"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "default"
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -215,9 +221,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ("index", "mlops-project", u"mlops-project Documentation", [u"The boys"], 1)
-]
+man_pages = [("index", "mlops-project", u"mlops-project Documentation", [u"The boys"], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
