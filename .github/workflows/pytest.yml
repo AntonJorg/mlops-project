@@ -75,7 +75,7 @@ jobs:
           git rm -rf .
           cp -R ../html/* .
           cp ../README.md README.md
-          echo "remote_theme: pmarsceill/just-the-docs" > _config.yml
+          echo "remote_theme: readthedocs/sphinx_rtd_theme" > _config.yml
           git add .
           git add README.md
           git commit -m "Generate documentation"
