@@ -12,8 +12,6 @@ gcloud ai-platform jobs submit training $JOB_NAME \
   experiment.batch_size=1 \
   experiment.trainer.limit_val_batches=1 \
   experiment.trainer.limit_train_batches=1 \
-  experiment.checkpoint_callback.dirpath=None \
-  experiment.checkpoint_callback.monitor=None \
-  '+experiment.checkpoint_callback.every_n_epochs=True'
+  '~experiment.checkpoint_callback.dirpath'
 unset WANDB_KEY
 

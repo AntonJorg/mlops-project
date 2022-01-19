@@ -84,4 +84,3 @@ def freeze_layers(model):
     model.class_labels_classifier.weight.requires_grad=True
 
 
-DetrPascal(lr=1e-4, lr_backbone=1e-5, weight_decay=1e-4,)
