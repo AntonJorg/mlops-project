@@ -6,19 +6,19 @@
 mlops-project documentation!
 ==============================================
 
-Contents:
+.. automodule:: src.__init__
 
 .. toctree::
    :maxdepth: 2
+   :caption: Modules:
 
-   getting-started
-   commands
-
-
+   data
+   models
+   visualization
+    
 
 Indices and tables
 ==================
-
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`

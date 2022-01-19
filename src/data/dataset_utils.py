@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 import torchvision
 from torch.utils.data import DataLoader
 from transformers import DetrFeatureExtractor
+from src.models.model import MODEL_NAME
 
 
 class PascalDataset(torchvision.datasets.CocoDetection):
@@ -14,9 +15,7 @@ class PascalDataset(torchvision.datasets.CocoDetection):
         feature_extractor: Instance of DetrFeatureExtractor. Used for preprocessing of images.
     """
 
-    def __init__(
-        self, dataset_path: str, feature_extractor: DetrFeatureExtractor, train=True
-    ):
+    def __init__(self, dataset_path: str, feature_extractor: DetrFeatureExtractor, train=True):
         img_folder = os.path.join(dataset_path, "train" if train else "valid")
         ann_file = os.path.join(img_folder, "_annotations.coco.json")
         super().__init__(img_folder, ann_file)
@@ -30,9 +29,7 @@ class PascalDataset(torchvision.datasets.CocoDetection):
         # (converting target to DETR format, resizing + normalization of both image and target)
         image_id = self.ids[idx]
         target = {"image_id": image_id, "annotations": target}
-        encoding = self.feature_extractor(
-            images=img, annotations=target, return_tensors="pt"
-        )
+        encoding = self.feature_extractor(images=img, annotations=target, return_tensors="pt")
         pixel_values = encoding["pixel_values"].squeeze()  # remove batch dimension
         target = encoding["labels"][0]  # remove batch dimension
 
@@ -46,15 +43,11 @@ class Collator:
     """
 
     def __init__(self):
-        self.feature_extractor = DetrFeatureExtractor.from_pretrained(
-            "mishig/tiny-detr-mobilenetsv3"
-        )
+        self.feature_extractor = DetrFeatureExtractor.from_pretrained(MODEL_NAME)
 
     def __call__(self, batch):
         pixel_values = [item[0] for item in batch]
-        encoding = self.feature_extractor.pad_and_create_pixel_mask(
-            pixel_values, return_tensors="pt"
-        )
+        encoding = self.feature_extractor.pad_and_create_pixel_mask(pixel_values, return_tensors="pt")
         labels = [item[1] for item in batch]
         batch = {
             "pixel_values": encoding["pixel_values"],
@@ -64,9 +57,7 @@ class Collator:
         return batch
 
 
-def get_dataloaders(
-    dataset_path: str, batch_size: int, cpu_count: Optional[int] = None
-) -> Tuple[DataLoader, DataLoader]:
+def get_dataloaders(dataset_path: str, batch_size: int, cpu_count: Optional[int] = None) -> Tuple[DataLoader, DataLoader]:
     """
     Returns data loaders for the training and validation set.
 
@@ -79,9 +70,7 @@ def get_dataloaders(
     """
     collator = Collator()
 
-    train_dataset = PascalDataset(
-        dataset_path=dataset_path, feature_extractor=collator.feature_extractor
-    )
+    train_dataset = PascalDataset(dataset_path=dataset_path, feature_extractor=collator.feature_extractor)
     val_dataset = PascalDataset(
         dataset_path=dataset_path,
         feature_extractor=collator.feature_extractor,
@@ -142,14 +131,10 @@ def generate_new_annotation_file(dataset=None):
 
 
 if __name__ == "__main__":
-    feature_extractor = DetrFeatureExtractor.from_pretrained(
-        "mishig/tiny-detr-mobilenetsv3"
-    )
+    feature_extractor = DetrFeatureExtractor.from_pretrained(MODEL_NAME)
 
     train_dataset = PascalDataset("data", feature_extractor=feature_extractor)
-    val_dataset = PascalDataset(
-        "data", feature_extractor=feature_extractor, train=False
-    )
+    val_dataset = PascalDataset("data", feature_extractor=feature_extractor, train=False)
 
     print("Training images:", len(train_dataset))
     print("Test images    :", len(val_dataset))

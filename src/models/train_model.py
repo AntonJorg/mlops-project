@@ -25,7 +25,8 @@ def main(config):
         project = os.getenv("WANDB_PROJECT")
         if not (api_key or project):
             raise EnvironmentError(
-                "Trying to use wandb logging without WANDB_API_KEY or WANDB_PROJECT defined in .env")
+                "Trying to use wandb logging without WANDB_API_KEY or WANDB_PROJECT defined in .env"
+            )
         wandb.login(key=api_key)
         wandb.init(project=project)
         loggers.append(WandbLogger())
@@ -35,22 +36,18 @@ def main(config):
     seed_everything(hparams.seed, workers=True)
 
     model = DetrPascal(
-        lr=hparams.lr,
-        lr_backbone=hparams.lr_backbone,
-        weight_decay=hparams.weight_decay
+        lr=hparams.lr, lr_backbone=hparams.lr_backbone, weight_decay=hparams.weight_decay
     )
     # Batch size of 2 * gpus recommended here:
     # https://huggingface.co/docs/transformers/model_doc/detr
-    train_dataloader, val_dataloader = get_dataloaders(
-        to_absolute_path("data"), hparams.batch_size
-    )
+    train_dataloader, val_dataloader = get_dataloaders(to_absolute_path("data"), hparams.batch_size)
 
     # Train
     trainer = Trainer(
         logger=loggers,
         gpus=config.gpus,
         amp_backend=hparams.amp_backend,
-        amp_level=hparams.amp_level
+        amp_level=hparams.amp_level,
     )
     trainer.fit(model, train_dataloader, val_dataloader)
 
