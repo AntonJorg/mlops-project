@@ -23,7 +23,7 @@ def test_model():
 
     feature_extractor = DetrFeatureExtractor.from_pretrained("facebook/detr-resnet-50")
 
-    hparams = config.experiment
+    hparams = config.experiment.model
 
     model = DetrPascal(
         lr=hparams.lr,
@@ -66,9 +66,7 @@ def test_model():
         bsize = len(batch)
 
         try:
-            encoding = feature_extractor(
-                images=batch, annotations=targets, return_tensors="pt"
-            )
+            encoding = feature_extractor(images=batch, annotations=targets, return_tensors="pt")
         except Exception as err:
             print("Encoding of batch failed.")
             raise
