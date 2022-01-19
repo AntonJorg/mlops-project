@@ -64,11 +64,16 @@ jobs:
         run: |
           cd docs
           make html
+      - name: Move docs
+        run: |
+          cd .. 
+          cp -R docs/_build/html html
       - name: Commit files
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git commit -m "Generate documentation" -a
+          git add html
+          git commit -m "Generate documentation"
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
