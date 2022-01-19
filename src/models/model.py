@@ -78,7 +78,7 @@ class DetrPascal(LightningModule):
         return optimizer
 
 def freeze_layers(model):
-    """Freezes all layers except the for the classifier"""
+    """Freezes all layers except the classifier"""
     for param in model.parameters():
             param.requires_grad=False
     model.class_labels_classifier.weight.requires_grad=True

@@ -30,7 +30,7 @@ def main(config):
             raise EnvironmentError(
                 "Trying to use wandb logging without WANDB_API_KEY or WANDB_PROJECT defined in .env")
         wandb.login(key=api_key)
-        wandb.init(project=project,entity=entity)
+        wandb.init(config=config, project=project,entity=entity)
         loggers.append(WandbLogger())
 
     hparams = config.experiment

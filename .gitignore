@@ -92,8 +92,7 @@ target/
 outputs/
 predictions/
 dtumlops-detr-aiplatform/
-next_steps.txt
-command_line.txt
+cloud_build_branch/
 
 
 

@@ -92,14 +92,14 @@ def get_dataloaders(
         dataset=train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=0,
+        num_workers=os.cpu_count(),
         collate_fn=collator
     )
     val_dataloader = DataLoader(
         dataset=val_dataset,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=0,
+        num_workers=os.cpu_count(),
         collate_fn=collator
     )
 

@@ -10,7 +10,6 @@ gcloud ai-platform jobs submit training $JOB_NAME \
   job_name=$JOB_NAME \
   wandb_key=$WANDB_KEY \
   experiment.batch_size=8 \
-  experiment.trainer.max_epochs=50 \
-  '~experiment.checkpoint_callback.dirpath'
+  experiment.trainer.max_epochs=3
 unset WANDB_KEY
 
