@@ -1,6 +1,6 @@
+from pytorch_lightning import LightningModule
 import requests
 from PIL import Image
-from pytorch_lightning import LightningModule
 from torch.optim import AdamW
 from transformers import DetrForObjectDetection
 
