@@ -67,6 +67,7 @@ jobs:
         run: |
           cp -R docs/_build/html ../html
           cp README.md ../README.md
+          cp -R .git ../.git
       - name: Commit files
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -74,6 +75,7 @@ jobs:
           rm -rf ..?* .[!.]* *
           cp -R ../html/* .
           cp ../README.md README.md
+          cp -R ../.git .git
           git add .
           git add README.md
           git commit -m "Generate documentation"
