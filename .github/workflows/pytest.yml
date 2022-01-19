@@ -70,12 +70,12 @@ jobs:
           cp -R .git ../.git
       - name: Commit files
         run: |
+          cp -R ../.git .git
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           rm -rf ..?* .[!.]* *
           cp -R ../html/* .
           cp ../README.md README.md
-          cp -R ../.git .git
           git add .
           git add README.md
           git commit -m "Generate documentation"
