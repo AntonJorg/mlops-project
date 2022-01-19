@@ -92,7 +92,7 @@ target/
 outputs/
 predictions/
 next_steps.txt
-#command_line.txt
+command_line.txt
 
 
 
