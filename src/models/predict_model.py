@@ -191,7 +191,7 @@ def predict(load_model_from,
                     draw.text((x - w / 2 + 5, y - h / 2 + 5),
                                 pred_class,
                                 fill='red')
-                    image_out.save(f'{predictions_to}/{next_dir}/im_pred{idx}.jpg')
+                image_out.save(f'{predictions_to}/{next_dir}/im_pred{idx}.jpg')
     annotated['results'] = results
 
     # Save info to a readable json file.
