@@ -91,6 +91,7 @@ target/
 # exclude outputs and predictions
 outputs/
 predictions/
+dtumlops-detr-aiplatform/
 next_steps.txt
 command_line.txt
 
