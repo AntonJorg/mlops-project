@@ -47,7 +47,7 @@ class Collator:
 
     def __init__(self):
         self.feature_extractor = DetrFeatureExtractor.from_pretrained(
-            "mishig/tiny-detr-mobilenetsv3"
+            "facebook/detr-resnet-50"
         )
 
     def __call__(self, batch):
