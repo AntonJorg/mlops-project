@@ -66,7 +66,11 @@ jobs:
           make html
       - name: Move docs
         run: |
+          pwd
+          ls
           cd .. 
+          pwd
+          ls
           cp -R docs/_build/html html
       - name: Commit files
         run: |
