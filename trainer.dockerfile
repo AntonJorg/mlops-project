@@ -10,7 +10,7 @@ USER root
 
 
 RUN  apt-get update \
-  && apt-get install -y wget git \
+  && apt-get install -y git \
   && rm -rf /var/lib/apt/lists/*
 
 # install python
@@ -21,39 +21,21 @@ RUN apt update && \
 
 # install wget
 
-RUN wget -nv \
-    https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz && \
-    mkdir /root/tools && \
-    tar xvzf google-cloud-sdk.tar.gz -C /root/tools && \
-    rm google-cloud-sdk.tar.gz && \
-    /root/tools/google-cloud-sdk/install.sh --usage-reporting=false \
-        --path-update=false --bash-completion=false \
-        --disable-installation-options && \
-    rm -rf /root/.config/* && \
-    ln -s /root/.config /config && \
-    # Remove the backup directory that gcloud creates
-    rm -rf /root/tools/google-cloud-sdk/.install/.backup
-
-ENV PATH $PATH:/root/tools/google-cloud-sdk/bin
-
-COPY gcloud_key.json gcloud_key.json
-ENV GOOGLE_APPLICATION_CREDENTIALS=gcloud_key.json
-RUN gcloud auth activate-service-account --key-file=gcloud_key.json && \
-    gcloud --quiet config set project dtumlops-detr
-
 ENV PATH $PATH:/usr/local/lib/python3.7/bin
 ENV PATH $PATH:/usr/local/lib/python/bin
 
+
 ADD https://api.github.com/repos/AntonJorg/mlops-project/git/refs/heads/cloud_building version.json
 RUN git clone -b cloud_building https://github.com/AntonJorg/mlops-project.git && \
-    cd mlops-project
-    #&& \     dvc pull
+    cd mlops-project && \
+    pip install -r requirements.txt --no-cache-dir
 
 WORKDIR mlops-project
 
-COPY data/ data/
+RUN dvc pull
+
+
 # install dependencies
-RUN pip install -r requirements.txt --no-cache-dir
 
 # run training script, -u redirects output to local console
 ENTRYPOINT ["python", "-u", "src/models/train_model.py"]

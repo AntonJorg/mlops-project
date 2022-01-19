@@ -8,6 +8,7 @@ from hydra.utils import to_absolute_path
 from omegaconf import OmegaConf
 from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 from pytorch_lightning import Trainer, seed_everything
+from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from os.path import join, dirname
 from src.data.dataset_utils import get_dataloaders
 from src.models.model import DetrPascal
@@ -21,7 +22,9 @@ def main(config):
     loggers = [TensorBoardLogger("lightning_logs/", name="")]
     if config.wandb:
         load_dotenv('.env')
-        api_key = os.getenv("WANDB_API_KEY")
+        api_key=config.wandb_key
+        if not config.wandb_key:
+            api_key = os.getenv("WANDB_API_KEY")
         project = os.getenv("WANDB_PROJECT")
         entity = os.getenv("WANDB_ENTITY")
         if not (api_key or project):
@@ -33,13 +36,12 @@ def main(config):
 
     hparams = config.experiment
 
+    checkpoint_callback = ModelCheckpoint(**hparams.checkpoint_callback)
+
+
     seed_everything(hparams.seed, workers=True)
 
-    model = DetrPascal(
-        lr=hparams.lr,
-        lr_backbone=hparams.lr_backbone,
-        weight_decay=hparams.weight_decay
-    )
+    model = DetrPascal(**hparams.model)
     # Batch size of 2 * gpus recommended here:
     # https://huggingface.co/docs/transformers/model_doc/detr
     train_dataloader, val_dataloader = get_dataloaders(
@@ -49,10 +51,9 @@ def main(config):
     # Train
     trainer = Trainer(default_root_dir=config.default_root_dir,
         logger=loggers,
-        gpus=config.gpus,
-        amp_backend=hparams.amp_backend,
-        amp_level=hparams.amp_level
-    )
+        callbacks=[checkpoint_callback],
+        **hparams.trainer
+        )
     trainer.fit(model, train_dataloader, val_dataloader)
 
 

@@ -2,7 +2,10 @@ defaults:
   - experiment: defaultexp
   - _self_
 
-gpus: 0
 wandb: True
+wandb_key: False
 default_root_dir: os.getcwd()
+job_name: None
+
+
 
