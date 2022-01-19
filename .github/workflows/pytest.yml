@@ -76,10 +76,10 @@ jobs:
           cp -R ../html/* .
           cp ../README.md README.md
           echo "remote_theme: readthedocs/sphinx_rtd_theme" > _config.yml
+          mv _static assets
           git add .
           git add README.md
           git commit -m "Generate documentation"
-          
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
