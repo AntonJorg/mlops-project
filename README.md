@@ -35,8 +35,14 @@ make train
 
 To make a prediction using a trained model use
 ```
-python src/models/predict_model.py {path to model weights} {path OR url to images}
+python src/models/predict_model.py {path to model checkpoint} {path OR url to images}
 ```
+
+If you wish to deploy a model using torchserve, serialize the model using:
+```
+python src/models/serialize_model.py {path to model checkpoint}
+```
+```index_to_name.json``` and ```detr_handler.py``` can then be used to deploy the model to do inference.
 
 # Project Organization
 ------------
