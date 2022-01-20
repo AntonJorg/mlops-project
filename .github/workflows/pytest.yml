@@ -40,6 +40,7 @@ jobs:
           pytest tests/ 
       
   docs:
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -75,7 +76,9 @@ jobs:
           git rm -rf .
           cp -R ../html/* .
           cp ../README.md README.md
-          echo "remote_theme: readthedocs/sphinx_rtd_theme" > _config.yml
+          echo 'remote_theme: "readthedocs/sphinx_rtd_theme"' > _config.yml
+          echo 'baseurl: "/mlops-project"' >> _config.yml
+          echo 'url: "https://antonjorg.github.io"' >> _config.yml
           mv _static assets
           git add .
           git add README.md
