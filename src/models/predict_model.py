@@ -17,9 +17,9 @@ log = logging.getLogger(__name__)
 
 # Object classes
 classes = [
-    "none", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat",
-    "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person",
-    "pottedplant", "sheep", "sofa", "train", "no object"
+    "none", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car",
+    "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike",
+    "person", "pottedplant", "sheep", "sofa", "train", "no object"
 ]
 n_classes = len(classes)
 
@@ -135,7 +135,8 @@ def predict(load_model_from,
     if os.path.exists(predictions_to):
         dirs = next(os.walk(predictions_to))[1]
         dirs_numerated = [int(dir) for dir in dirs]
-        next_dir = str(max(dirs_numerated) + 1) if len(dirs_numerated) else str(1)
+        next_dir = str(max(dirs_numerated) +
+                       1) if len(dirs_numerated) else str(1)
     else:
         os.mkdir(predictions_to)
         next_dir = str(1)
@@ -211,8 +212,7 @@ def predict(load_model_from,
                     draw.text((x - w / 2 + 5, y - h / 2 + 5),
                               pred_class,
                               fill='red')
-                    image_out.save(
-                        f'{predictions_to}/{next_dir}/im_pred{idx}.jpg')
+                image_out.save(f'{predictions_to}/{next_dir}/im_pred{idx}.jpg')
     annotated['results'] = results
 
     # Save info to a readable json file.
