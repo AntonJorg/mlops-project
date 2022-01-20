@@ -94,6 +94,8 @@ predictions/
 next_steps.txt
 #command_line.txt
 
-
+# Ignore models and model_store folder
+/models/
+/model_store/
 
 
