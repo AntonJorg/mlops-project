@@ -77,9 +77,7 @@ jobs:
           git rm -rf .
           cp -R ../html/* .
           cp ../README.md README.md
-          echo 'remote_theme: "readthedocs/sphinx_rtd_theme"' > _config.yml
-          echo 'baseurl: "/mlops-project"' >> _config.yml
-          echo 'url: "https://antonjorg.github.io"' >> _config.yml
+          touch .nojekyll
           git add .
           git add README.md
           git commit -m "Generate documentation"
