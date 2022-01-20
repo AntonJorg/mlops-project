@@ -9,16 +9,17 @@ import requests
 import torch
 from PIL import Image, ImageDraw
 from torch.nn.functional import softmax
-from transformers import DetrFeatureExtractor, DetrForObjectDetection
+from model import DetrPascal
+from transformers import DetrFeatureExtractor
 
 # Logger
 log = logging.getLogger(__name__)
 
 # Object classes
 classes = [
-    "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat",
+    "none", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat",
     "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person",
-    "pottedplant", "sheep", "sofa", "train", "tvmonitor"
+    "pottedplant", "sheep", "sofa", "train", "no object"
 ]
 n_classes = len(classes)
 
@@ -72,6 +73,19 @@ class PredictSet:
             yield image, id
 
 
+def get_best_model(load_model_from):
+    file_names = filter(lambda fp: fp[-5:] == '.ckpt',
+                        os.listdir(load_model_from))
+    file_names = list(file_names)
+    if len(file_names):
+        best_loss = 1e4
+        for file in file_names:
+            if float(file[-9:-5]) < best_loss:
+                best_loss = float(file[-9:-5])
+                file_name = file
+    return os.path.join(load_model_from, file_name)
+
+
 @click.command()
 @click.argument('load_model_from', type=click.Path(exists=True))
 @click.argument('images_from')
@@ -100,12 +114,19 @@ def predict(load_model_from,
     assert os.path.exists(load_model_from), "The model path does not exist."
 
     feature_extractor = DetrFeatureExtractor.from_pretrained(
-        "mishig/tiny-detr-mobilenetsv3")
-    # TODO: Load in our trained model. Below is a placeholder
-    model = DetrForObjectDetection.from_pretrained(
-        "mishig/tiny-detr-mobilenetsv3",
-        num_labels=n_classes,
-        ignore_mismatched_sizes=True)
+        "facebook/detr-resnet-50")
+
+    if os.path.isdir(load_model_from):
+        model_path = get_best_model(load_model_from)
+    else:
+        model_path = load_model_from
+
+    model = DetrPascal.load_from_checkpoint(model_path,
+                                            lr=1e-4,
+                                            lr_backbone=1e-5,
+                                            weight_decay=1e-4)
+
+    model.eval()
 
     Images = PredictSet(images_from)
     assert Images, "No images were found."
@@ -144,7 +165,7 @@ def predict(load_model_from,
             batch.append(image)
             batch_results.append({'id': i, 'file_name': id, 'detections': []})
             i += 1
-        bsize = len(batch) # Actual batch size
+        bsize = len(batch)  # Actual batch size
 
         encoding = feature_extractor(images=batch, return_tensors='pt')
 
@@ -152,27 +173,26 @@ def predict(load_model_from,
             outputs = model(**encoding)
 
         # We loop over each image in the batch
-        for logits, bboxes, result in zip(outputs.logits,
-                                                     outputs.pred_boxes,
-                                                     batch_results):
+        for logits, bboxes, result in zip(outputs.logits, outputs.pred_boxes,
+                                          batch_results):
             probs = softmax(logits, dim=1)
             best = np.argmax(probs, 1)
             criteria = probs[np.arange(len(best)), best] > threshold
             for pred, box, prob in zip(best[criteria], bboxes[criteria],
                                        probs[criteria]):
                 # If 'No Object' is detected, skip over the detection
-                if pred < n_classes:
+                if pred < n_classes - 1:
                     pred_class = classes[pred]
                 else:
                     continue
-                
+
                 confidence = prob[pred].item()
                 x, y, w, h = tuple(box)
                 x, y, w, h = x.item(), y.item(), w.item(), h.item()
                 result['detections'].append(
-                    (pred_class, (x, y, w, h), confidence)) 
+                    (pred_class, (x, y, w, h), confidence))
             results.append(result)
-        
+
         if draw_boxes:
             for j, image_out in enumerate(batch_images_out):
                 idx = i - bsize + j
@@ -189,9 +209,10 @@ def predict(load_model_from,
                         outline='red',
                         width=2)
                     draw.text((x - w / 2 + 5, y - h / 2 + 5),
-                                pred_class,
-                                fill='red')
-                    image_out.save(f'{predictions_to}/{next_dir}/im_pred{idx}.jpg')
+                              pred_class,
+                              fill='red')
+                    image_out.save(
+                        f'{predictions_to}/{next_dir}/im_pred{idx}.jpg')
     annotated['results'] = results
 
     # Save info to a readable json file.
