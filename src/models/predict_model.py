@@ -189,7 +189,6 @@ def predict(load_model_from,
                 confidence = prob[pred].item()
                 x, y, w, h = tuple(box)
                 x, y, w, h = x.item(), y.item(), w.item(), h.item()
-                print((x - w / 2, y - h / 2, x + w / 2, y + h / 2))
                 result['detections'].append(
                     (pred_class, (x, y, w, h), confidence))
             results.append(result)
