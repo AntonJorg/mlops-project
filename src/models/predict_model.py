@@ -9,19 +9,18 @@ import requests
 import torch
 from PIL import Image, ImageDraw
 from torch.nn.functional import softmax
-from transformers import DetrFeatureExtractor, DetrForObjectDetection
-from src.models.model import DetrPascal
+from model import DetrPascal
+from transformers import DetrFeatureExtractor
 
 # Logger
 log = logging.getLogger(__name__)
 
 # Object classes
-classes = ["none",
-           "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat",
-           "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person",
-           "pottedplant", "sheep", "sofa", "train"
-           ]
-# "tvmonitor"
+classes = [
+    "none", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car",
+    "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike",
+    "person", "pottedplant", "sheep", "sofa", "train", "no object"
+]
 n_classes = len(classes)
 
 
@@ -74,6 +73,19 @@ class PredictSet:
             yield image, id
 
 
+def get_best_model(load_model_from):
+    file_names = filter(lambda fp: fp[-5:] == '.ckpt',
+                        os.listdir(load_model_from))
+    file_names = list(file_names)
+    if len(file_names):
+        best_loss = 1e4
+        for file in file_names:
+            if float(file[-9:-5]) < best_loss:
+                best_loss = float(file[-9:-5])
+                file_name = file
+    return os.path.join(load_model_from, file_name)
+
+
 @click.command()
 @click.argument('load_model_from', default='models/resnet-50', required=False)
 @click.argument('file_name', default=None, required=False)
@@ -105,21 +117,27 @@ def predict(load_model_from,
     feature_extractor = DetrFeatureExtractor.from_pretrained(
         "facebook/detr-resnet-50")
 
-    # TODO: Load in our trained model. Below is a placeholder
-    if not file_name:
-        file_names = os.listdir(load_model_from)
-        file_names = filter(lambda fp: fp[-5:] == '.ckpt', os.listdir(load_model_from))
-        file_name = get_best_model(file_names)
+    if os.path.isdir(load_model_from):
+        model_path = get_best_model(load_model_from)
+    else:
+        model_path = load_model_from
 
-    model_path = os.path.join(load_model_from, file_name)
-    model = DetrPascal.load_from_checkpoint(model_path, lr=1e-4, lr_backbone=1e-5, weight_decay=1e-4)
+    model = DetrPascal.load_from_checkpoint(model_path,
+                                            lr=1e-4,
+                                            lr_backbone=1e-5,
+                                            weight_decay=1e-4)
+
+    model.eval()
+
     Images = PredictSet(images_from)
     assert Images, "No images were found."
+
     # Initialize {predictions_to} folder
     if os.path.exists(predictions_to):
         dirs = next(os.walk(predictions_to))[1]
         dirs_numerated = [int(dir) for dir in dirs]
-        next_dir = str(max(dirs_numerated) + 1)
+        next_dir = str(max(dirs_numerated) +
+                       1) if len(dirs_numerated) else str(1)
     else:
         os.mkdir(predictions_to)
         next_dir = str(1)
@@ -166,7 +184,7 @@ def predict(load_model_from,
             for pred, box, prob in zip(best[criteria], bboxes[criteria],
                                        probs[criteria]):
                 # If 'No Object' is detected, skip over the detection
-                if pred < n_classes:
+                if pred < n_classes - 1:
                     pred_class = classes[pred]
                 else:
                     continue

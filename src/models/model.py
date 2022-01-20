@@ -5,7 +5,7 @@ from torch.optim import AdamW
 from transformers import DetrForObjectDetection
 
 
-MODEL_NAME = "mishig/tiny-detr-mobilenetsv3"
+MODEL_NAME = "facebook/detr-resnet-50"
 
 
 class DetrPascal(LightningModule):

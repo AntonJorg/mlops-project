@@ -94,7 +94,9 @@ predictions/
 dtumlops-detr-aiplatform/
 cloud_build_branch/
 
-
+# Ignore models and model_store folder
+/models/
+/model_store/
 
 
 /models
