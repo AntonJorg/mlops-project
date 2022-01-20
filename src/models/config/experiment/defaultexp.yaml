@@ -10,7 +10,6 @@ model:
 checkpoint_callback:
   monitor: 'validation_loss'
   mode: 'min'
-  dirpath: config.job_name
   filename: '{epoch:02d}-{validation_loss:.2f}'
 
 

@@ -1,5 +1,5 @@
 [core]
     remote = remote_storage
+    autostage = true
 ['remote "remote_storage"']
     url = gs://dtu-pascal-data-bucket/
-

@@ -87,27 +87,28 @@ def get_best_model(load_model_from):
 
 
 @click.command()
-@click.argument('load_model_from', type=click.Path(exists=True))
-@click.argument('images_from')
+@click.argument('load_model_from', default='models/resnet-50', required=False)
+@click.argument('file_name', default=None, required=False)
+@click.argument('images_from', default='example_images', required=False)
 @click.option('--predictions_to', default='predictions', required=False)
 @click.option('--threshold', default=.5, required=False)
 @click.option('--batch_size', default=4, required=False)
 @click.option('--draw_boxes', default=True, required=False)
 def predict(load_model_from,
-            images_from,
+            images_from, file_name,
             predictions_to='predictions',
             threshold=.5,
             batch_size=4,
             draw_boxes=True):
     """Predicts objects in the provided images.
-    
+
     Arguments:
         load_model_from {str}: path to model weights
         images {str}: path to images for prediction OR url
     Keyword arguments:
         predictions_to {str}: path to folder where results are saved. The path does not have
                               to exist. (default 'predictions')
-        threshold {float}: Probability threshold for predictions. (default .5) 
+        threshold {float}: Probability threshold for predictions. (default .5)
         batch_size {int}: Batch size for prediction. (default 4)
         draw_boxes {bool}: Whether to draw the bounding boxes on the images and save them. (default True)
     """
@@ -174,7 +175,8 @@ def predict(load_model_from,
             outputs = model(**encoding)
 
         # We loop over each image in the batch
-        for logits, bboxes, result in zip(outputs.logits, outputs.pred_boxes,
+        for logits, bboxes, result in zip(outputs.logits,
+                                          outputs.pred_boxes,
                                           batch_results):
             probs = softmax(logits, dim=1)
             best = np.argmax(probs, 1)
@@ -220,6 +222,17 @@ def predict(load_model_from,
         json.dump(annotated, file, indent=4)
 
     return None
+
+
+def get_best_model(file_names):
+    file_names = list(file_names)
+    if len(file_names) > 0:
+        best_loss = 1e4
+        for file in file_names:
+            if float(file[-9:-5]) < best_loss:
+                best_loss = float(file[-9:-5])
+                file_name = file
+    return file_name
 
 
 if __name__ == '__main__':

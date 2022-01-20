@@ -21,8 +21,7 @@ def main(config):
     log.info(f"configuration: \n {OmegaConf.to_yaml(config)}")
     loggers = [TensorBoardLogger("lightning_logs/", name="")]
     if config.wandb:
-        load_dotenv(".env")
-        api_key = config.wandb_key
+        api_key=config.wandb_key
         if not config.wandb_key:
             api_key = os.getenv("WANDB_API_KEY")
         project = os.getenv("WANDB_PROJECT")
@@ -32,7 +31,11 @@ def main(config):
                 "Trying to use wandb logging without WANDB_API_KEY or WANDB_PROJECT defined in .env"
             )
         wandb.login(key=api_key)
-        wandb.init(project=project, entity=entity)
+
+        wandb.init(config=config, project=project,entity=entity)
+
+
+
         loggers.append(WandbLogger())
 
     hparams = config.experiment
@@ -50,6 +53,7 @@ def main(config):
     # Train
     trainer = Trainer(
         default_root_dir=config.default_root_dir,
+
         logger=loggers,
         callbacks=[checkpoint_callback],
         **hparams.trainer,
@@ -64,6 +68,6 @@ if __name__ == "__main__":
 
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
-    load_dotenv(find_dotenv())
+    load_dotenv('.env')
 
     main()
