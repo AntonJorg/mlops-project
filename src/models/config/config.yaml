@@ -4,7 +4,6 @@ defaults:
 
 wandb: True
 wandb_key: False
-default_root_dir: os.getcwd()
 job_name: None
 
 

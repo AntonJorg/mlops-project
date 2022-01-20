@@ -9,8 +9,7 @@ gcloud ai-platform jobs submit training $JOB_NAME \
   -- default_root_dir=gs://dtumlops-detr-aiplatform \
   job_name=$JOB_NAME \
   wandb_key=$WANDB_KEY \
-  experiment.batch_size=1 \
-  experiment.trainer.limit_val_batches=1 \
-  experiment.trainer.limit_train_batches=1
+  experiment.batch_size=8 \
+  experiment.trainer.max_epochs=3
 unset WANDB_KEY
 
