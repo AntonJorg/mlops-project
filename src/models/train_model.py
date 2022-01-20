@@ -28,31 +28,37 @@ def main(config):
         entity = os.getenv("WANDB_ENTITY")
         if not (api_key or project):
             raise EnvironmentError(
-                "Trying to use wandb logging without WANDB_API_KEY or WANDB_PROJECT defined in .env")
+                "Trying to use wandb logging without WANDB_API_KEY or WANDB_PROJECT defined in .env"
+            )
         wandb.login(key=api_key)
+
         wandb.init(config=config, project=project,entity=entity)
+
+
+
         loggers.append(WandbLogger())
 
     hparams = config.experiment
 
     checkpoint_callback = ModelCheckpoint(**hparams.checkpoint_callback)
 
-
     seed_everything(hparams.seed, workers=True)
 
     model = DetrPascal(**hparams.model)
+
     # Batch size of 2 * gpus recommended here:
     # https://huggingface.co/docs/transformers/model_doc/detr
-    train_dataloader, val_dataloader = get_dataloaders(
-        to_absolute_path("data"), hparams.batch_size
-    )
+    train_dataloader, val_dataloader = get_dataloaders(to_absolute_path("data"), hparams.batch_size)
 
     # Train
     trainer = Trainer(
+        default_root_dir=config.default_root_dir,
+
         logger=loggers,
         callbacks=[checkpoint_callback],
-        **hparams.trainer
-        )
+        **hparams.trainer,
+    )
+
     trainer.fit(model, train_dataloader, val_dataloader)
 
 

@@ -15,6 +15,7 @@ timm
 omegaconf==2.1.1
 Pillow~=8.4.0
 pytorch_lightning==1.5.8
+torchmetrics==0.6.2
 requests==2.26.0
 torch==1.10.1
 torchvision==0.11.2

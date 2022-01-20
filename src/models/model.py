@@ -1,8 +1,11 @@
+from pytorch_lightning import LightningModule
 import requests
 from PIL import Image
-from pytorch_lightning import LightningModule
 from torch.optim import AdamW
 from transformers import DetrForObjectDetection
+
+
+MODEL_NAME = "mishig/tiny-detr-mobilenetsv3"
 
 
 class DetrPascal(LightningModule):
@@ -29,9 +32,7 @@ class DetrPascal(LightningModule):
         pixel_mask = batch["pixel_mask"].to(self.device)
         labels = [{k: v.to(self.device) for k, v in t.items()} for t in batch["labels"]]
 
-        outputs = self.model(
-            pixel_values=pixel_values, pixel_mask=pixel_mask, labels=labels
-        )
+        outputs = self.model(pixel_values=pixel_values, pixel_mask=pixel_mask, labels=labels)
 
         loss = outputs.loss
         loss_dict = outputs.loss_dict
@@ -56,19 +57,18 @@ class DetrPascal(LightningModule):
         return loss
 
     def configure_optimizers(self):
+        """
+        Manual Docstring Test
+        """
         param_dicts = [
             {
                 "params": [
-                    p
-                    for n, p in self.named_parameters()
-                    if "backbone" not in n and p.requires_grad
+                    p for n, p in self.named_parameters() if "backbone" not in n and p.requires_grad
                 ]
             },
             {
                 "params": [
-                    p
-                    for n, p in self.named_parameters()
-                    if "backbone" in n and p.requires_grad
+                    p for n, p in self.named_parameters() if "backbone" in n and p.requires_grad
                 ],
                 "lr": self.lr_backbone,
             },
