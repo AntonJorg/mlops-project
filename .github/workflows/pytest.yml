@@ -70,6 +70,7 @@ jobs:
           cp README.md ../README.md
       - name: Commit files
         run: |
+          make clean
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
@@ -79,7 +80,6 @@ jobs:
           echo 'remote_theme: "readthedocs/sphinx_rtd_theme"' > _config.yml
           echo 'baseurl: "/mlops-project"' >> _config.yml
           echo 'url: "https://antonjorg.github.io"' >> _config.yml
-          mv _static assets
           git add .
           git add README.md
           git commit -m "Generate documentation"
