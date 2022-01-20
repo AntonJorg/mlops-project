@@ -10,6 +10,7 @@ import torch
 from PIL import Image, ImageDraw
 from torch.nn.functional import softmax
 from transformers import DetrFeatureExtractor, DetrForObjectDetection
+from src.models.model import DetrPascal
 
 # Logger
 log = logging.getLogger(__name__)
@@ -73,7 +74,7 @@ class PredictSet:
 
 
 @click.command()
-@click.argument('load_model_from', type=click.Path(exists=True))
+@click.argument('load_model_from')
 @click.argument('images_from')
 @click.option('--predictions_to', default='predictions', required=False)
 @click.option('--threshold', default=.5, required=False)
@@ -101,11 +102,9 @@ def predict(load_model_from,
 
     feature_extractor = DetrFeatureExtractor.from_pretrained(
         "mishig/tiny-detr-mobilenetsv3")
+
     # TODO: Load in our trained model. Below is a placeholder
-    model = DetrForObjectDetection.from_pretrained(
-        "mishig/tiny-detr-mobilenetsv3",
-        num_labels=n_classes,
-        ignore_mismatched_sizes=True)
+    model = DetrPascal.load_from_checkpoint(load_model_from,lr=1e-4, lr_backbone=1e-5, weight_decay=1e-4)
 
     Images = PredictSet(images_from)
     assert Images, "No images were found."

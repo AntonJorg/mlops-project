@@ -9,12 +9,14 @@ MODEL_NAME = "mishig/tiny-detr-mobilenetsv3"
 
 
 class DetrPascal(LightningModule):
-    def __init__(self, lr, lr_backbone, weight_decay):
+    def __init__(self, lr, lr_backbone, weight_decay,train_classifier_only=True):
         super().__init__()
         # replace COCO classification head with custom head
         self.model = DetrForObjectDetection.from_pretrained(
-            MODEL_NAME, num_labels=20, ignore_mismatched_sizes=True
+            "facebook/detr-resnet-50", num_labels=20, ignore_mismatched_sizes=True
         )
+        if train_classifier_only:
+            freeze_layers(self.model)
         # see https://github.com/PyTorchLightning/pytorch-lightning/pull/1896
         self.lr = lr
         self.lr_backbone = lr_backbone
@@ -74,3 +76,11 @@ class DetrPascal(LightningModule):
         optimizer = AdamW(param_dicts, lr=self.lr, weight_decay=self.weight_decay)
 
         return optimizer
+
+def freeze_layers(model):
+    """Freezes all layers except the classifier"""
+    for param in model.parameters():
+            param.requires_grad=False
+    model.class_labels_classifier.weight.requires_grad=True
+
+

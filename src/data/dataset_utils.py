@@ -43,7 +43,10 @@ class Collator:
     """
 
     def __init__(self):
-        self.feature_extractor = DetrFeatureExtractor.from_pretrained(MODEL_NAME)
+        self.feature_extractor = DetrFeatureExtractor.from_pretrained(
+            "facebook/detr-resnet-50"
+        )
+
 
     def __call__(self, batch):
         pixel_values = [item[0] for item in batch]
@@ -82,14 +85,14 @@ def get_dataloaders(dataset_path: str, batch_size: int, cpu_count: Optional[int]
         batch_size=batch_size,
         shuffle=True,
         num_workers=os.cpu_count(),
-        collate_fn=collator,
+        collate_fn=collator
     )
     val_dataloader = DataLoader(
         dataset=val_dataset,
         batch_size=batch_size,
         shuffle=False,
         num_workers=os.cpu_count(),
-        collate_fn=collator,
+        collate_fn=collator
     )
 
     return train_dataloader, val_dataloader
