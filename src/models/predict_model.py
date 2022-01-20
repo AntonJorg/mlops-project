@@ -16,11 +16,12 @@ from src.models.model import DetrPascal
 log = logging.getLogger(__name__)
 
 # Object classes
-classes = [
-    "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat",
-    "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person",
-    "pottedplant", "sheep", "sofa", "train", "tvmonitor"
-]
+classes = ["none",
+           "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat",
+           "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person",
+           "pottedplant", "sheep", "sofa", "train"
+           ]
+# "tvmonitor"
 n_classes = len(classes)
 
 
@@ -74,41 +75,46 @@ class PredictSet:
 
 
 @click.command()
-@click.argument('load_model_from')
-@click.argument('images_from')
+@click.argument('load_model_from', default='models/resnet-50', required=False)
+@click.argument('file_name', default=None, required=False)
+@click.argument('images_from', default='example_images', required=False)
 @click.option('--predictions_to', default='predictions', required=False)
 @click.option('--threshold', default=.5, required=False)
 @click.option('--batch_size', default=4, required=False)
 @click.option('--draw_boxes', default=True, required=False)
 def predict(load_model_from,
-            images_from,
+            images_from, file_name,
             predictions_to='predictions',
             threshold=.5,
             batch_size=4,
             draw_boxes=True):
     """Predicts objects in the provided images.
-    
+
     Arguments:
         load_model_from {str}: path to model weights
         images {str}: path to images for prediction OR url
     Keyword arguments:
         predictions_to {str}: path to folder where results are saved. The path does not have
                               to exist. (default 'predictions')
-        threshold {float}: Probability threshold for predictions. (default .5) 
+        threshold {float}: Probability threshold for predictions. (default .5)
         batch_size {int}: Batch size for prediction. (default 4)
         draw_boxes {bool}: Whether to draw the bounding boxes on the images and save them. (default True)
     """
     assert os.path.exists(load_model_from), "The model path does not exist."
 
     feature_extractor = DetrFeatureExtractor.from_pretrained(
-        "mishig/tiny-detr-mobilenetsv3")
+        "facebook/detr-resnet-50")
 
     # TODO: Load in our trained model. Below is a placeholder
-    model = DetrPascal.load_from_checkpoint(load_model_from,lr=1e-4, lr_backbone=1e-5, weight_decay=1e-4)
+    if not file_name:
+        file_names = os.listdir(load_model_from)
+        file_names = filter(lambda fp: fp[-5:] == '.ckpt', os.listdir(load_model_from))
+        file_name = get_best_model(file_names)
 
+    model_path = os.path.join(load_model_from, file_name)
+    model = DetrPascal.load_from_checkpoint(model_path, lr=1e-4, lr_backbone=1e-5, weight_decay=1e-4)
     Images = PredictSet(images_from)
     assert Images, "No images were found."
-
     # Initialize {predictions_to} folder
     if os.path.exists(predictions_to):
         dirs = next(os.walk(predictions_to))[1]
@@ -143,7 +149,7 @@ def predict(load_model_from,
             batch.append(image)
             batch_results.append({'id': i, 'file_name': id, 'detections': []})
             i += 1
-        bsize = len(batch) # Actual batch size
+        bsize = len(batch)  # Actual batch size
 
         encoding = feature_extractor(images=batch, return_tensors='pt')
 
@@ -152,8 +158,8 @@ def predict(load_model_from,
 
         # We loop over each image in the batch
         for logits, bboxes, result in zip(outputs.logits,
-                                                     outputs.pred_boxes,
-                                                     batch_results):
+                                          outputs.pred_boxes,
+                                          batch_results):
             probs = softmax(logits, dim=1)
             best = np.argmax(probs, 1)
             criteria = probs[np.arange(len(best)), best] > threshold
@@ -164,14 +170,14 @@ def predict(load_model_from,
                     pred_class = classes[pred]
                 else:
                     continue
-                
+
                 confidence = prob[pred].item()
                 x, y, w, h = tuple(box)
                 x, y, w, h = x.item(), y.item(), w.item(), h.item()
                 result['detections'].append(
-                    (pred_class, (x, y, w, h), confidence)) 
+                    (pred_class, (x, y, w, h), confidence))
             results.append(result)
-        
+
         if draw_boxes:
             for j, image_out in enumerate(batch_images_out):
                 idx = i - bsize + j
@@ -188,8 +194,8 @@ def predict(load_model_from,
                         outline='red',
                         width=2)
                     draw.text((x - w / 2 + 5, y - h / 2 + 5),
-                                pred_class,
-                                fill='red')
+                              pred_class,
+                              fill='red')
                 image_out.save(f'{predictions_to}/{next_dir}/im_pred{idx}.jpg')
     annotated['results'] = results
 
@@ -198,6 +204,17 @@ def predict(load_model_from,
         json.dump(annotated, file, indent=4)
 
     return None
+
+
+def get_best_model(file_names):
+    file_names = list(file_names)
+    if len(file_names) > 0:
+        best_loss = 1e4
+        for file in file_names:
+            if float(file[-9:-5]) < best_loss:
+                best_loss = float(file[-9:-5])
+                file_name = file
+    return file_name
 
 
 if __name__ == '__main__':
