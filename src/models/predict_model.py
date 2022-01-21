@@ -87,7 +87,7 @@ def get_best_model(load_model_from):
 
 
 @click.command()
-@click.argument('load_model_from', default='models/resnet-50', required=False)
+@click.argument('load_model_from', default='models/resnet-50/checkpoints', required=False)
 @click.argument('file_name', default=None, required=False)
 @click.argument('images_from', default='example_images', required=False)
 @click.option('--predictions_to', default='predictions', required=False)
@@ -114,21 +114,20 @@ def predict(load_model_from,
     """
     assert os.path.exists(load_model_from), "The model path does not exist."
 
+
     feature_extractor = DetrFeatureExtractor.from_pretrained(
         "facebook/detr-resnet-50")
 
+
+    # TODO: Load in our trained model. Below is a placeholder
     if os.path.isdir(load_model_from):
-        model_path = get_best_model(load_model_from)
+        file_names = os.listdir(load_model_from)
+        file_names = filter(lambda fp: fp[-5:] == '.ckpt', os.listdir(load_model_from))
+        file_name = get_best_model(file_names)
     else:
-        model_path = load_model_from
-
-    model = DetrPascal.load_from_checkpoint(model_path,
-                                            lr=1e-4,
-                                            lr_backbone=1e-5,
-                                            weight_decay=1e-4)
-
-    model.eval()
-
+        file_name=load_model_from
+    model_path = os.path.join(load_model_from, file_name)
+    model = DetrPascal.load_from_checkpoint(model_path, lr=1e-4, lr_backbone=1e-5, weight_decay=1e-4)
     Images = PredictSet(images_from)
     assert Images, "No images were found."
 
@@ -232,6 +231,8 @@ def get_best_model(file_names):
             if float(file[-9:-5]) < best_loss:
                 best_loss = float(file[-9:-5])
                 file_name = file
+    else:
+        file_name=file_names[0]
     return file_name
 
 
